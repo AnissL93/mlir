@@ -4,9 +4,12 @@
 
 #include "dialect.h"
 
+#include "mlir/IR/Dialect.h"
+#include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/OpImplementation.h"
 #include "mlir/IR/StandardTypes.h"
+#include "type/tfu_type.h"
 
 #include <iostream>
 
@@ -18,6 +21,21 @@ TfuDialect::TfuDialect(mlir::MLIRContext *ctx) : mlir::Dialect("tfu", ctx) {
 #define GET_OP_LIST
 #include "src/dialect/op.cpp.inc"
   >();
+  addTypes<Region>();
+  addTypes<RangeType>();
+}
+
+void TfuDialect::printType(mlir::Type type, mlir::DialectAsmPrinter &printer) const {
+  Region region_type = type.cast<Region>();
+  printer << "region<";
+  ::std::string shape_str;
+  llvm::raw_string_ostream os(shape_str);
+  for (int i = 0; i < region_type.getShape().size(); ++i) {
+     region_type.getShape()[i].print(os);
+     os << "x";
+  }
+  os << region_type.getMemScope() << "x" << region_type.getElemType() << ">";
+  printer << os.str();
 }
 
 #define GET_OP_CLASSES

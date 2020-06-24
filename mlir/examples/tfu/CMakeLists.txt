@@ -35,6 +35,10 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/)
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
 get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
 
+# compile halide
+add_subdirectory(3rdparty/HalideIR)
+include_directories(3rdparty/HalideIR/src)
+
 target_link_libraries(main
         PRIVATE
         ${dialect_libs}
@@ -48,6 +52,7 @@ target_link_libraries(main
         MLIRSideEffects
         MLIRTargetLLVMIR
         MLIRTransforms
+        halideir
         )
 
 target_link_libraries(test-expr
@@ -64,5 +69,6 @@ target_link_libraries(test-expr
         MLIRSideEffects
         MLIRTargetLLVMIR
         MLIRTransforms
+        halideir
         )
 

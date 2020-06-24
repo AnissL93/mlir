@@ -15,12 +15,10 @@ namespace mlir {
 class MLIRContext;
 
 namespace detail {
-
 struct ExprStorage;
 struct BinaryOpExprStorage;
 struct SymbolExprStorage;
 struct ConstantExprStorage;
-
 } // namespace detail
 
 enum class ExprKind {

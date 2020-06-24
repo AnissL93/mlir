@@ -131,7 +131,7 @@ Expr mlir::getSymbolExpr(unsigned int position, llvm::StringRef name,
     storage->context = context;
   };
 
-  StorageUniquer &uniquer = context->getExprUniquer();
+  StorageUniquer &uniquer = context->getTypeUniquer();
   return uniquer.get<SymbolExprStorage>(
       assignCtx, static_cast<unsigned>(ExprKind::SymbolId), position, name);
 }
@@ -141,7 +141,7 @@ Expr mlir::getConstantExpr(int64_t constant, MLIRContext *context) {
     storage->context = context;
   };
 
-  StorageUniquer &uniquer = context->getExprUniquer();
+  StorageUniquer &uniquer = context->getTypeUniquer();
   return uniquer.get<ConstantExprStorage>(
       assignCtx, static_cast<unsigned>(ExprKind::Constant), constant);
 }
@@ -249,7 +249,7 @@ Expr Expr::operator+(Expr other) const {
   if (auto simplified = simplifyAdd(*this, other))
     return simplified;
 
-  StorageUniquer &uniquer = getContext()->getExprUniquer();
+  StorageUniquer &uniquer = getContext()->getTypeUniquer();
   return uniquer.get<BinaryOpExprStorage>(
       /*initFn=*/{}, static_cast<unsigned>(ExprKind::Add), *this, other);
 }
@@ -309,7 +309,7 @@ Expr Expr::operator*(Expr other) const {
   if (auto simplified = simplifyMul(*this, other))
     return simplified;
 
-  StorageUniquer &uniquer = getContext()->getExprUniquer();
+  StorageUniquer &uniquer = getContext()->getTypeUniquer();
   return uniquer.get<BinaryOpExprStorage>(
       /*initFn=*/{}, static_cast<unsigned>(ExprKind::Mul), *this, other);
 }
@@ -327,7 +327,7 @@ Expr Expr::floorDiv(uint64_t v) const {
   return floorDiv(getConstantExpr(v, getContext()));
 }
 Expr Expr::floorDiv(Expr other) const {
-  StorageUniquer &uniquer = getContext()->getExprUniquer();
+  StorageUniquer &uniquer = getContext()->getTypeUniquer();
   return uniquer.get<BinaryOpExprStorage>(
       /*initFn=*/{}, static_cast<unsigned>(ExprKind::FloorDiv), *this, other);
 }
@@ -369,7 +369,7 @@ Expr Expr::ceilDiv(Expr other) const {
   if (auto simplified = simplifyCeilDiv(*this, other))
     return simplified;
 
-  StorageUniquer &uniquer = getContext()->getExprUniquer();
+  StorageUniquer &uniquer = getContext()->getTypeUniquer();
   return uniquer.get<BinaryOpExprStorage>(
       /*initFn=*/{}, static_cast<unsigned>(ExprKind::CeilDiv), *this, other);
 }
@@ -378,7 +378,7 @@ Expr Expr::operator%(uint64_t v) const {
   return *this % getConstantExpr(v, getContext());
 }
 Expr Expr::operator%(Expr other) const {
-  StorageUniquer &uniquer = getContext()->getExprUniquer();
+  StorageUniquer &uniquer = getContext()->getTypeUniquer();
   return uniquer.get<BinaryOpExprStorage>(
       /*initFn=*/{}, static_cast<unsigned>(ExprKind::Mod), *this, other);
 }

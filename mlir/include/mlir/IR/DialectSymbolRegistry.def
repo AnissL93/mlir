@@ -26,6 +26,7 @@ DEFINE_SYM_KIND_RANGE(SPIRV) // SPIR-V dialect
 DEFINE_SYM_KIND_RANGE(XLA_HLO) // XLA HLO dialect
 DEFINE_SYM_KIND_RANGE(SHAPE) // Shape dialect
 DEFINE_SYM_KIND_RANGE(TFU) // Tfu dialect
+DEFINE_SYM_KIND_RANGE(RANGE) // Tfu dialect
 
 // The following ranges are reserved for experimenting with MLIR dialects in a
 // private context without having to register them here.

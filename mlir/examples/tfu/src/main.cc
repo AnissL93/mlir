@@ -53,26 +53,17 @@ struct Module {
     builder.setInsertionPointToStart(entry_block);
   }
 
-  Value ConstTensor(TensorType t) {
+  Value ConstTensor(Region t, const std::string &name) {
     auto init_attr = builder.getFloatAttr(F64, 0);
     return builder.create<ConstantOp>(builder.getUnknownLoc(), t,
-                               init_attr);
+                               init_attr, builder.getStringAttr(name));
   }
 
-  Value ConstTensor(llvm::ArrayRef<int64_t> shape) {
-    auto t_type = RankedTensorType::get(shape, F16);
-    std::vector<double> data;
-    for (size_t i = 0; i < shape.size(); ++i) {
-      data.push_back(static_cast<double>(i));
-    }
-    auto data_attr = DenseElementsAttr::get(t_type, llvm::makeArrayRef(data));
-    return builder.create<ConstantOp>(builder.getUnknownLoc(), t_type,
-                               data_attr);
-  }
-
-  Value Conv(Value in, Value w, int s) {
-    Type out_type = UnrankedTensorType::get(builder.getF16Type());
-    return builder.create<ConvOp>(builder.getUnknownLoc(), out_type, in, w, builder.getIntegerAttr(I64, s));
+  Value Conv(Value in, Value w, int s, std::string name) {
+    Type out_type = mlir::tfu::Region::get({-1, -1, -1, -1}, "ct", builder.getF16Type());
+    return builder.create<ConvOp>(
+        builder.getUnknownLoc(), out_type, in, w, builder.getIntegerAttr(I64, s),
+        builder.getStringAttr(name));
   }
 
   void MakeFunc(llvm::StringRef name, Type ret_type,
@@ -107,17 +98,16 @@ void buildConvConv() {
   OpBuilder builder(&context);
   Module module(&context, builder);
 
-  auto in_type = RankedTensorType::get({1, 5, 5, 10}, builder.getF16Type());
-  auto w_type = RankedTensorType::get({10, 1, 1, 10}, builder.getIntegerType(8));
-  auto out_type = RankedTensorType::get({1, 5, 5, 10}, builder.getF16Type());
+  auto in_type = mlir::tfu::Region::get({1, 5, 5, 10}, "ddr", builder.getF16Type());
+  auto w_type = mlir::tfu::Region::get({10, 1, 1, 10}, "ddr", builder.getIntegerType(8));
+  auto out_type = mlir::tfu::Region::get({1, 5, 5, 10}, "ddr", builder.getF16Type());
   llvm::SmallVector<mlir::Type, 3> arg_types = {in_type, w_type, out_type};
   module.MakeEntry(arg_types);
-  Value input = module.ConstTensor(in_type);
-  Value w1 = module.ConstTensor(w_type);
-  Value w2 = module.ConstTensor(w_type);
-  Value out = module.ConstTensor(out_type);
-  Value conv1_out = module.Conv(input, w1, 1);
-  Value conv2_out = module.Conv(conv1_out, w2, 1);
+  Value input = module.ConstTensor(in_type, "in");
+  Value w1 = module.ConstTensor(w_type, "w1");
+  Value w2 = module.ConstTensor(w_type, "w2");
+  Value conv1_out = module.Conv(input, w1, 1, "conv1");
+  Value conv2_out = module.Conv(conv1_out, w2, 1, "conv2");
   module.Return(conv2_out);
 
   module.dump();
@@ -127,6 +117,13 @@ void buildConvConv() {
 int main(int argn, char** argv) {
   mlir::registerAllDialects();
   mlir::registerDialect<mlir::tfu::TfuDialect>();
+  mlir::MLIRContext context;
+  mlir::tfu::Region t = mlir::tfu::Region::get({1,1,1,1}, "ddr",
+                                               mlir::FloatType::getF64(&context));
+
+  mlir::tfu::RangeType r = mlir::tfu::RangeType::get(0, 10, &context);
+  t.dump();
+  r.dump();
   buildConvConv();
   return 0;
 }

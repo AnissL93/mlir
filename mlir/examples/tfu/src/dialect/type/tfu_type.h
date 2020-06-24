@@ -5,6 +5,74 @@
 #ifndef LLVM_TFU_TYPE_H
 #define LLVM_TFU_TYPE_H
 
-class tfu_type {};
+#include "dialect/dialect.h"
+#include "expr.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/raw_os_ostream.h"
+
+namespace mlir {
+namespace tfu {
+
+namespace detail {
+struct RegionStorage;
+}
+
+namespace TfuTypes {
+enum Types {
+  Region = mlir::Type::FIRST_TFU_TYPE,
+};
+} // end namespace ToyTypes
+
+class Region : public mlir::Type::TypeBase<Region, mlir::Type,
+    detail::RegionStorage> {
+public:
+  using Base::Base;
+  static bool kindof(unsigned kind) { return kind == TfuTypes::Types::Region; }
+
+  static Region get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms, Type elem_type);
+
+  llvm::ArrayRef<Expr> getShape();
+
+  llvm::StringRef getMemScope();
+
+  Type getElemType();
+
+  void print(llvm::raw_ostream& os);
+
+  void dump();
+};
+
+namespace detail {
+struct RangeTypeStorage;
+}
+
+namespace RangeTypes {
+enum Types {
+  Type = mlir::Type::FIRST_RANGE_TYPE,
+};
+} // end namespace ToyTypes
+
+#include "ir/Range.h"
+
+class RangeType : public mlir::Type::TypeBase<RangeType, mlir::Type,
+    detail::RangeTypeStorage> {
+public:
+  using Base::Base;
+
+  static bool kindof(unsigned kind) { return kind == RangeTypes::Type; }
+
+  static RangeType get(int64_t st, int64_t ed, ::mlir::MLIRContext* ctx);
+
+  ::HalideIR::Expr getStart();
+
+  ::HalideIR::Expr getExtent();
+
+  void print(llvm::raw_ostream& os);
+
+  void dump();
+};
+
+} // tfu
+} // mlir
 
 #endif // LLVM_TFU_TYPE_H

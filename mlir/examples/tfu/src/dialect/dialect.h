@@ -8,6 +8,7 @@
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/Function.h"
 #include "mlir/Interfaces/SideEffects.h"
+#include "type/tfu_type.h"
 
 namespace mlir {
 namespace tfu {
@@ -17,6 +18,9 @@ public:
   explicit TfuDialect(mlir::MLIRContext *ctx);
 
   static llvm::StringRef getDialectNamespace() { return "tfu"; }
+
+  void printType(mlir::Type type,
+                 mlir::DialectAsmPrinter &printer) const override;
 };
 
 #define GET_OP_CLASSES
