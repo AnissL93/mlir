@@ -28,14 +28,14 @@ TfuDialect::TfuDialect(mlir::MLIRContext *ctx) : mlir::Dialect("tfu", ctx) {
 void TfuDialect::printType(mlir::Type type, mlir::DialectAsmPrinter &printer) const {
   Region region_type = type.cast<Region>();
   printer << "region<";
-  ::std::string shape_str;
-  llvm::raw_string_ostream os(shape_str);
+  std::ostringstream os;
   for (int i = 0; i < region_type.getShape().size(); ++i) {
-     region_type.getShape()[i].print(os);
+     os << region_type.getShape()[i];
      os << "x";
   }
-  os << region_type.getMemScope() << "x" << region_type.getElemType() << ">";
+  os << region_type.getMemScope().str() << "x";
   printer << os.str();
+  printer << region_type.getElemType() << ">";
 }
 
 #define GET_OP_CLASSES

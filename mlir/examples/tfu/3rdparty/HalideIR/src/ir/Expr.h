@@ -323,4 +323,6 @@ struct hash<::HalideIR::Internal::Stmt> {
   }
 };
 }
+
+using HExpr = HalideIR::Expr;
 #endif

@@ -442,7 +442,7 @@ class LogMessageFatal {
 #if DMLC_LOG_BEFORE_THROW
     LOG(ERROR) << log_stream_.str();
 #endif
-    throw Error(log_stream_.str());
+//    throw Error(log_stream_.str());
   }
 
  private:

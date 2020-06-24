@@ -30,6 +30,9 @@ add_tfu(main
         DEPENDS
         OpIncGen)
 
+add_tfu(test-halide
+        unittests/test_halide.cc)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/)
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
@@ -38,6 +41,8 @@ get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
 # compile halide
 add_subdirectory(3rdparty/HalideIR)
 include_directories(3rdparty/HalideIR/src)
+
+set(CMAKE_CXX_FLAGS "-fexceptions")
 
 target_link_libraries(main
         PRIVATE
@@ -71,4 +76,8 @@ target_link_libraries(test-expr
         MLIRTransforms
         halideir
         )
+
+target_link_libraries(test-halide
+        PRIVATE
+        halideir )
 

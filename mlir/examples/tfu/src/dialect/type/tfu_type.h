@@ -6,9 +6,10 @@
 #define LLVM_TFU_TYPE_H
 
 #include "dialect/dialect.h"
-#include "expr.h"
+//#include "expr.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/raw_os_ostream.h"
+#include "ir/Expr.h"
 
 namespace mlir {
 namespace tfu {
@@ -31,7 +32,7 @@ public:
 
   static Region get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms, Type elem_type);
 
-  llvm::ArrayRef<Expr> getShape();
+  llvm::ArrayRef<HExpr> getShape();
 
   llvm::StringRef getMemScope();
 
@@ -52,8 +53,6 @@ enum Types {
 };
 } // end namespace ToyTypes
 
-#include "ir/Range.h"
-
 class RangeType : public mlir::Type::TypeBase<RangeType, mlir::Type,
     detail::RangeTypeStorage> {
 public:
@@ -63,9 +62,9 @@ public:
 
   static RangeType get(int64_t st, int64_t ed, ::mlir::MLIRContext* ctx);
 
-  ::HalideIR::Expr getStart();
+  HExpr getStart();
 
-  ::HalideIR::Expr getExtent();
+  HExpr getExtent();
 
   void print(llvm::raw_ostream& os);
 
