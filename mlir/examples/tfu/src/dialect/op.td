@@ -44,7 +44,7 @@ def ConstantOp : Tfu_Op<"constant",
   }];
 
   // The constant operation takes an attribute as the only input.
-  let arguments = (ins F64ElementsAttr:$value);
+  let arguments = (ins F64:$value);
 
   // The constant operation returns a single value of TensorType.
   let results = (outs F64Tensor);
@@ -122,6 +122,13 @@ def ReshapeOp : Tfu_Op<"reshape", [NoSideEffect]> {
 
   // We expect that the reshape operation returns a statically shaped tensor.
   let results = (outs StaticShapeTensorOf<[F64]>);
+}
+
+def ConvOp : Tfu_Op<"conv", [NoSideEffect]> {
+  let summary = "conv operation";
+
+  let arguments = (ins AnyTensor:$input, AnyTensor:$weight, I64Attr:$stride);
+  let results = (outs AnyTensor:$output);
 }
 
 def ReturnOp : Tfu_Op<"return", [NoSideEffect, HasParent<"FuncOp">,
