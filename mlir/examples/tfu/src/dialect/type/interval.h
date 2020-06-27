@@ -1,57 +1,50 @@
 //
-// Created by aniss on 2020/6/21.
+// Created by aniss on 2020/6/26.
 //
 
-#ifndef LLVM_SRC_DIALECT_TYPE_INTERVAL_H
-#define LLVM_SRC_DIALECT_TYPE_INTERVAL_H
+#ifndef LLVM_TFU_INTERVAL_H
+#define LLVM_TFU_INTERVAL_H
 
-#include "mlir/Support/LLVM.h"
-#include "llvm/ADT/DenseMapInfo.h"
-#include "llvm/Support/Casting.h"
-#include <type_traits>
+#include "ir/Expr.h"
+#include "range.h"
 
-namespace mlir {
+namespace tfu {
+struct IntervalNode;
+struct DynamicIntervalNode;
+struct StaticIntervalNode;
 
-class MLIRContext;
-
-enum class IntervalKind {
-  kDynamic, kStatic
-};
-
-namespace detail {
-struct IntervalStorage;
-struct DynamicIntervalStorage;
-struct StaticIntervalStorage;
-} // namespace detail
-
-class Interval {
+class Interval : public tvm::NodeRef {
 public:
-  using ImplType = detail::IntervalStorage;
-  bool operator==(Interval other) const { return impl == other.impl; }
-  bool operator!=(Interval other) const { return !(*this == other); }
-  bool operator==(int64_t v) const;
-  bool operator!=(int64_t v) const { return !(*this == v); }
-  explicit operator bool() const { return impl; }
-  bool operator!() const { return impl == nullptr; }
-  template <typename U> bool isa() const;
-  template <typename U> U dyn_cast() const;
-  template <typename U> U dyn_cast_or_null() const;
-  template <typename U> U cast() const;
-  IntervalKind getKind() const;
-  MLIRContext *getContext() const;
-  friend ::llvm::hash_code hash_value(Interval arg);
-protected:
-  ImplType * impl;
+  Interval() {}
+  explicit Interval(tvm::NodePtr<tvm::Node> n) : tvm::NodeRef(n) {}
+
+  inline const tvm::Node *get() const {
+    return static_cast<const tvm::Node *>(node_.get());
+  }
+
+  inline const tvm::Node *operator->() const {
+    return static_cast<const tvm::Node *>(node_.get());
+  }
 };
 
-struct DynamicInterval : public Interval {
-  using ImplType  = detail::DynamicIntervalStorage;
+struct IntervalNode : public tvm::Node {
+  using ContainerType =
+      std::vector<std::pair<Range, tvm::NodePtr<tvm::Node>>>;
+
+  ContainerType data;
+
+  static constexpr const char* _type_key = "Interval";
+  TVM_DECLARE_NODE_TYPE_INFO(IntervalNode, Node);
 };
 
-struct StaticInterval : public Interval {
-  using ImplType  = detail::StaticIntervalStorage;
+struct DynamicIntervalNode : public IntervalNode {
+
 };
 
-} // namespace mlir
+struct StaticIntervalNode : public IntervalNode {
 
-#endif // LLVM_SRC_DIALECT_TYPE_INTERVAL_H
+};
+
+} // namespace tfu
+
+#endif // LLVM_TFU_INTERVAL_H
