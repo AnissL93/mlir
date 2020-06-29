@@ -40,6 +40,14 @@ def CopyOp : Tfu_Op<"copy", [NoSideEffect]> {
   let results = (outs TfuType:$dst);
 }
 
+def GraphOp : Tfu_Op<"graph", [NoSideEffect]> {
+  let arguments = (ins Variadic<TfuType>);
+  let regions = (region SizedRegion<1>:$region);
+  let results = (outs Variadic<TfuType>);
+  let builders = [
+  OpBuilder<"OpBuilder &builder, OperationState &result">];
+}
+
 def ConvOp : Tfu_Op<"conv", [NoSideEffect]> {
   let arguments = (ins TfuType:$input, TfuType:$weight, I64Attr:$stride, StrAttr:$op_name );
   let results = (outs TfuType:$output);
