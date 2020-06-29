@@ -18,25 +18,12 @@ public:
   void runOnFunction() override {
     auto f = BaseType::getFunction();
 
-    llvm::SmallPtrSet<mlir::Operation *, 16> opWorklist;
+    llvm::SmallPtrSet<mlir::Operation *, 16> op_worklist;
     f.walk([&](mlir::Operation *op) {
-      if (returnsDynamicShape(op))
-        opWorklist.insert(op);
+        op_worklist.insert(op);
     });
-
   }
 
-  bool returnsDynamicShape(mlir::Operation* op) {
-    if (op->getNumResults() == 0)
-      return false;
-
-    mlir::OpResult res = op->getOpResult(0);
-    mlir::Type t = res.getType();
-    mlir::tfu::Region region = t.dyn_cast_or_null<mlir::tfu::Region>();
-    assert(region && "return type is not region");
-    return true;
-//    return region.isDynamic();
-  }
 };
 
 }

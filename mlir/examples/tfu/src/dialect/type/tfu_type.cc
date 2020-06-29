@@ -17,11 +17,11 @@ namespace mlir {
 namespace tfu {
 namespace detail {
 
-struct RegionStorage : public mlir::TypeStorage {
+struct TfuTypeStorage : public mlir::TypeStorage {
 
   using KeyTy = ::std::tuple<llvm::ArrayRef<HExpr>, llvm::StringRef, Type>;
 
-  RegionStorage(llvm::ArrayRef<HExpr> shape, llvm::StringRef ms, Type type)
+  TfuTypeStorage(llvm::ArrayRef<HExpr> shape, llvm::StringRef ms, Type type)
       : shape(shape), mem_scope(ms), element_type(type) {}
 
   bool operator==(const KeyTy &key) const {
@@ -48,7 +48,7 @@ struct RegionStorage : public mlir::TypeStorage {
     return std::make_tuple(sh, ms, t);
   }
 
-  static RegionStorage *construct(mlir::TypeStorageAllocator &allocator,
+  static TfuTypeStorage *construct(mlir::TypeStorageAllocator &allocator,
                                       const KeyTy &key) {
     // Copy the elements from the provided `KeyTy` into the allocator.
     llvm::ArrayRef<HExpr> shape =
@@ -57,8 +57,8 @@ struct RegionStorage : public mlir::TypeStorage {
     llvm::StringRef name = allocator.copyInto(::std::get<1>(key));
 
     // Allocate the storage instance and construct it.
-    return new (allocator.allocate<RegionStorage>())
-        RegionStorage(shape, name, ::std::get<2>(key));
+    return new (allocator.allocate<TfuTypeStorage>())
+        TfuTypeStorage(shape, name, ::std::get<2>(key));
   }
 
   // shape
@@ -87,14 +87,14 @@ struct RangeTypeStorage : public mlir::TypeStorage {
 
   static RangeTypeStorage *construct(mlir::TypeStorageAllocator &allocator,
                                   const KeyTy &key) {
-    return new (allocator.allocate<RegionStorage>()) RangeTypeStorage(key);
+    return new (allocator.allocate<TfuTypeStorage>()) RangeTypeStorage(key);
   }
 
   HalideIR::IR::Range range;
 };
 } // namespace detail
 
-Region Region::get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms,
+TfuType TfuType::get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms,
                    mlir::Type elem_type) {
   assert((shape.size() == 4) && "expected 4 dimensions in shape");
 
@@ -105,23 +105,23 @@ Region Region::get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms,
   for (size_t i = 0; i < shape.size(); ++i) {
     shape_expr.push_back(HalideIR::Internal::make_const(HalideIR::Int(64), shape[i]));
   }
-  return Base::get(ctx,  TfuTypes::Region, shape_expr, ms, elem_type);
+  return Base::get(ctx,  TfuTypes::TfuType, shape_expr, ms, elem_type);
 }
 
-llvm::ArrayRef<HExpr> Region::getShape() {
+llvm::ArrayRef<HExpr> TfuType::getShape() {
   return getImpl()->shape;
 }
 
-Type Region::getElemType() {
+Type TfuType::getElemType() {
   return getImpl()->element_type;
 }
 
-llvm::StringRef Region::getMemScope() {
+llvm::StringRef TfuType::getMemScope() {
   return getImpl()->mem_scope;
 }
 
-void Region::print(llvm::raw_ostream &os) {
-  os << "region<";
+void TfuType::print(llvm::raw_ostream &os) {
+  os << "tfu_type<";
   for (int i = 0; i < getShape().size(); ++i) {
     std::ostringstream str;
     str << getShape()[i];
@@ -131,7 +131,7 @@ void Region::print(llvm::raw_ostream &os) {
   os << getMemScope() << "x" << getElemType() << ">";
 }
 
-void Region::dump() {
+void TfuType::dump() {
   print(llvm::errs());
 }
 

@@ -18,8 +18,8 @@ class Tfu_Op<string mnemonic, list<OpTrait> traits = []> :
     Op<Tfu_Dialect, mnemonic, traits>;
 
 // Provide a definition of the types that are used within the Tfu dialect.
-def Region :
-    Type<CPred<"$_self.isa<Region>()">, "Tfu Region type">;
+def TfuType :
+    Type<CPred<"$_self.isa<TfuType>()">, "Tfu type">;
 
 //===----------------------------------------------------------------------===//
 // Tfu Operations
@@ -32,23 +32,23 @@ def Region :
 def ConstantOp : Tfu_Op<"constant",
     [ConstantLike, NoSideEffect]> {
   let arguments = (ins F64Attr:$value, StrAttr:$op_name);
-  let results = (outs Region);
+  let results = (outs TfuType);
 }
 
 def CopyOp : Tfu_Op<"copy", [NoSideEffect]> {
-  let arguments = (ins Region:$src);
-  let results = (outs Region:$dst);
+  let arguments = (ins TfuType:$src);
+  let results = (outs TfuType:$dst);
 }
 
 def ConvOp : Tfu_Op<"conv", [NoSideEffect]> {
-  let arguments = (ins Region:$input, Region:$weight, I64Attr:$stride, StrAttr:$op_name );
-  let results = (outs Region:$output);
+  let arguments = (ins TfuType:$input, TfuType:$weight, I64Attr:$stride, StrAttr:$op_name );
+  let results = (outs TfuType:$output);
 }
 
 def ReturnOp : Tfu_Op<"return", [NoSideEffect, HasParent<"FuncOp">,
                                  Terminator]> {
   let summary = "return operation";
-  let arguments = (ins Variadic<Region>:$input);
+  let arguments = (ins Variadic<TfuType>:$input);
 
   // Provide extra utility definitions on the c++ operation class definition.
   let extraClassDeclaration = [{

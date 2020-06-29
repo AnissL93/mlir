@@ -15,22 +15,22 @@ namespace mlir {
 namespace tfu {
 
 namespace detail {
-struct RegionStorage;
+struct TfuTypeStorage;
 }
 
 namespace TfuTypes {
 enum Types {
-  Region = mlir::Type::FIRST_TFU_TYPE,
+  TfuType = mlir::Type::FIRST_TFU_TYPE,
 };
 } // end namespace ToyTypes
 
-class Region : public mlir::Type::TypeBase<Region, mlir::Type,
-    detail::RegionStorage> {
+class TfuType : public mlir::Type::TypeBase<TfuType, mlir::Type,
+    detail::TfuTypeStorage> {
 public:
   using Base::Base;
-  static bool kindof(unsigned kind) { return kind == TfuTypes::Types::Region; }
+  static bool kindof(unsigned kind) { return kind == TfuTypes::Types::TfuType; }
 
-  static Region get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms, Type elem_type);
+  static TfuType get(llvm::ArrayRef<int64_t> shape, llvm::StringRef ms, Type elem_type);
 
   llvm::ArrayRef<HExpr> getShape();
 

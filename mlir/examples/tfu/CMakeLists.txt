@@ -36,6 +36,9 @@ add_tfu(test-halide
 add_tfu(test-interval
         unittests/test_interval.cc)
 
+add_tfu(test-pass
+        unittests/test_pass.cc)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/)
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
@@ -80,11 +83,27 @@ target_link_libraries(test-expr
         halideir
         )
 
+target_link_libraries(test-pass
+        PRIVATE
+        gtest
+        ${dialect_libs}
+        ${conversion_libs}
+        MLIRAnalysis
+        MLIRCallInterfaces
+        MLIRExecutionEngine
+        MLIRIR
+        MLIRParser
+        MLIRPass
+        MLIRSideEffects
+        MLIRTargetLLVMIR
+        MLIRTransforms
+        )
+
 target_link_libraries(test-halide
         PRIVATE
         halideir )
 
 target_link_libraries(test-interval
         PRIVATE
-        halideir )
+        halideir)
 

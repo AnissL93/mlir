@@ -21,12 +21,12 @@ TfuDialect::TfuDialect(mlir::MLIRContext *ctx) : mlir::Dialect("tfu", ctx) {
 #define GET_OP_LIST
 #include "src/dialect/op.cpp.inc"
   >();
-  addTypes<Region>();
+  addTypes<TfuType>();
   addTypes<RangeType>();
 }
 
 void TfuDialect::printType(mlir::Type type, mlir::DialectAsmPrinter &printer) const {
-  Region region_type = type.cast<Region>();
+  auto region_type = type.cast<TfuType>();
   printer << "region<";
   std::ostringstream os;
   for (int i = 0; i < region_type.getShape().size(); ++i) {
